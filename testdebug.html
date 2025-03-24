@@ -20,7 +20,7 @@ var rawData = {
     {
       "attribute": "case.CountryOfContract",
       "valueAsString": "1f087fa1-4b87-485e-88f5-de581e9440b7"
-    }
+    },
     {
       "attribute": "case.ClientPresent",
       "valueAsString": "fc7610f9-7c80-4182-b815-a82bff28524c"
@@ -426,7 +426,7 @@ var rawData = {
       "valueAsString": 1
     },
     {
-      "attribute": "case.life[0].product[0].benefit[10].amount,
+      "attribute": "case.life[0].product[0].benefit[10].amount",
       "valueAsString": 65000000
     },
     {
@@ -435,7 +435,7 @@ var rawData = {
     },
     {
       "attribute": "case.life[0].product[0].benefit[12].amount",
-      "valueAsString": 
+      "valueAsString": 65000000
     },
     {
       "attribute": "case.life[0].product[0].benefit[1].termBasis",
@@ -486,7 +486,7 @@ var rawData = {
       "valueAsString": "de701835-42fc-40ae-b31e-b2388167a1d8"
     }
   ]
-}
+};
 
 // function compare(a,b) {
 //   if (a.attribute < b.attribute)
@@ -507,14 +507,18 @@ function compare(a,b) {
 function compareDeep(a,b) {
   var tmpStra = a.attribute.split(".");
   var tmpStrb = b.attribute.split(".");
-  if(tmpStra >= 5 && tmpStrb.length >= 5){
-    var cleanA = tmpStra[3].match(/\d/g).join("");
-    var cleanB = tmpStrb[3].match(/\d/g).join("");
-    if(parseInt(cleanA) < parseInt(cleanB)){
+  if(tmpStra.length >= 5 && tmpStrb.length >= 5){
+    var cleanA = tmpStra[3].match(/\d/g);
+    var cleanB = tmpStrb[3].match(/\d/g);
+    if(cleanA && cleanB) {
+      cleanA = cleanA.join("");
+      cleanB = cleanB.join("");
+      if(parseInt(cleanA) < parseInt(cleanB)){
         return -1;
-    }
-    if(parseInt(cleanA) > parseInt(cleanB)){
+      }
+      if(parseInt(cleanA) > parseInt(cleanB)){
         return 1;
+      }
     }
     return 0;
   }else{
@@ -522,46 +526,43 @@ function compareDeep(a,b) {
   }
 }
 
-
 function compareDeep2(a,b) {
   var tmpStra = a.attribute;
-  var tmpStrb = b.attributes;
-
+  var tmpStrb = b.attribute;
 
   var cleanA = tmpStra.match(/\[\d+/g);
   var cleanB = tmpStrb.match(/\[\d+/g);
-  console.log(tmpStra);
-  console.log(cleanA);
+  
+  if(cleanA == null && cleanB == null)
+    return compare(tmpStra, tmpStrb);
   if(cleanA == null)
     return -1;
   if(cleanB == null)
     return 1;
     
-  for(var i=0;i<cleanA.length && i<cleanB.length;i++){
-    var a = parseInt(cleanA[].slice(1, cleanA[i].length));
-    var b = parseInt(cleanB[i].slice(1, cleanB[i].length));
+  for(var i=0; i<cleanA.length && i<cleanB.length; i++){
+    var numA = parseInt(cleanA[i].slice(1, cleanA[i].length));
+    var numB = parseInt(cleanB[i].slice(1, cleanB[i].length));
 
-    if (a < b)
+    if (numA < numB)
       return -1;
-    if (a > b)
+    if (numA > numB)
       return 1;
-
   }
 
   if(cleanA.length != cleanB.length)
-	 return compare(cleanA.length, cleanB.length);
+    return compare(cleanA.length, cleanB.length);
 
-    //replace(/\[+(\d+)+\]/g,'');
-  
+  // Compare the rest of the path if indices are equal
   var tmpIgA = tmpStra.replace(/\[+(\d+)+\]/g,'');
   var tmpIgB = tmpStrb.replace(/\[+(\d+)+\]/g,'');
   
-  return compare(tmpStra);
+  return compare(tmpIgA, tmpIgB);
 }
-
 
 function myFunction() {
     var tt = rawData.attributes.sort(compareDeep2);
+    document.getElementById("demo").innerHTML = "Sorting complete. Check console for results.";
     console.log(tt);
 }
 </script>
